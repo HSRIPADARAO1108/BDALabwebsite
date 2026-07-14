@@ -1,9 +1,14 @@
 import pandas as pd
 import numpy as np
+import warnings
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
+
+# Global Fix: Suppress warning logs from cluttering the Streamlit console text area
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore")
 
 print("Loading Bike Trip Classification Pipeline...")
 
@@ -17,13 +22,19 @@ try:
     print("\nColumns")
     print(df.columns)
     
-    # 2. CORE FIX: Explicitly pass both 'object' and 'string' to fix Pandas4Warning
-    categorical_cols = df.select_dtypes(include=['object', 'string']).columns
+    # 2. Complete String Type Check: Safely filter columns regardless of 'object' vs 'str' setup
+    categorical_cols = [c for c in df.columns if df[c].dtype in ['object', 'str', 'O'] or isinstance(df[c].dtype, pd.StringDtype)]
     
     # Encode categorical text values to numbers natively
     le = LabelEncoder()
     for col in categorical_cols:
-        df[col] = le.fit_transform(df[col].astype(str))
+        # Exclude the target variable from encoding if handled manually
+        if col != 'UserType':
+            df[col] = le.fit_transform(df[col].astype(str))
+            
+    # Ensure target variable UserType is encoded if it is text data
+    if df['UserType'].dtype in ['object', 'str', 'O']:
+        df['UserType'] = le.fit_transform(df['UserType'].astype(str))
         
     # 3. Define Features (X) and Target Label (y)
     X = df.drop(columns=['UserType'])
