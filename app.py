@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import contextlib
 import io
+import base64
 import matplotlib.pyplot as plt
 
 # Page Setup Configurations (Must be the very first Streamlit command)
@@ -11,34 +12,54 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS Injector for the Background Image Experience
-# Uses linear-gradient overlay to ensure white/colored dashboard elements contrast beautifully
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url("app/static/images.jpg");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
-    
-    /* Make text elements pop crisp against the image backdrop */
-    h1, h2, h3, p, span, label {
-        color: #f8fafc !important;
-    }
-    
-    /* Smooth out container blocks visibility */
-    .stTextArea textarea, .stSelectbox div {
-        background-color: rgba(30, 41, 59, 0.7) !important;
-        color: #f8fafc !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# Function to safely load a local image from the root directory and convert it to base64
+def get_base64_image(image_path):
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    return ""
+
+# Convert your root image.jpg into a secure web-safe string format
+bin_str = get_base64_image("images.jpg")
+
+# Inject Custom CSS using the base64 background string
+if bin_str:
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url("data:image/jpg;base64,{bin_str}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+        
+        /* Make all dashboard headings and text contrast beautifully against the image */
+        h1, h2, h3, p, span, label, .stMarkdown {{
+            color: #f8fafc !important;
+        }}
+        
+        /* Stylize text areas and select boxes to match the premium transparent theme */
+        .stTextArea textarea, .stSelectbox div {{
+            background-color: rgba(30, 41, 59, 0.7) !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    # Fallback to a clean dark slate if the image is processing or temporarily unreadable
+    st.markdown(
+        """
+        <style>
+        .stApp { background-color: #0f172a; }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 st.title("🚀 VTU BDA & ML Executable Lab Dashboard")
 st.markdown("Select a laboratory assignment program from the sidebar menu to read the source code and execute its machine learning pipelines live.")
@@ -60,7 +81,7 @@ selected_display = st.sidebar.selectbox("Select Active Assignment Script:", list
 target_filename = program_map[selected_display]
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("📁 **Workspace Files Inventory:**")
+st.sidebar.markdown("📁 **Workspace Files Inventory Check:**")
 
 # Sidebar indicators checking verification of target script presence
 if os.path.exists(target_filename):
