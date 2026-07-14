@@ -4,11 +4,40 @@ import contextlib
 import io
 import matplotlib.pyplot as plt
 
-# Page Setup Configurations
+# Page Setup Configurations (Must be the very first Streamlit command)
 st.set_page_config(
     page_title="VTU BDA & ML Executable Dashboard", 
     page_icon="🚀", 
     layout="wide"
+)
+
+# Custom CSS Injector for the Background Image Experience
+# Uses linear-gradient overlay to ensure white/colored dashboard elements contrast beautifully
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url("app/static/images.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+    
+    /* Make text elements pop crisp against the image backdrop */
+    h1, h2, h3, p, span, label {
+        color: #f8fafc !important;
+    }
+    
+    /* Smooth out container blocks visibility */
+    .stTextArea textarea, .stSelectbox div {
+        background-color: rgba(30, 41, 59, 0.7) !important;
+        color: #f8fafc !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
 st.title("🚀 VTU BDA & ML Executable Lab Dashboard")
@@ -71,7 +100,7 @@ if os.path.exists(target_filename):
                     # Redirect core terminal output streams directly into our UI layout screen
                     with contextlib.redirect_stdout(stdout_buffer), contextlib.redirect_stderr(stdout_buffer):
                         # Unified shared execution scope dictionary forces variables and 
-                        # module imports (like 're') to stay bound inside pandas functions.
+                        # module imports to stay bound inside pandas functions.
                         exec_scope = {"__name__": "__main__"}
                         exec(script_code, exec_scope, exec_scope)
                     
