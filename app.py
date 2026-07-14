@@ -19,8 +19,8 @@ program_map = {
     "Program 01: Iris Dataset Analysis & Distributions": "program1.py",
     "Program 02: Pima Diabetes Classifier (Naive Bayes)": "program2.py",
     "Program 03: Distributed Hadoop WordCount Core": "program3.py",
-    "Program 04: Weather Data Analysis (PySpark)": "program4.py",
-    "Program 05: Movie Rating Average MapReduce": "program5.py",
+    "Program 04: Weather Data Analysis Pipeline": "program4.py",
+    "Program 05: Movie Rating Average Calculator": "program5.py",
     "Program 06: Bike Trip History User Classification": "program6.py",
     "Program 07: BigMart Sales Prediction Regression": "program7.py",
     "Program 08: Twitter Sentiment Analysis (NLP)": "program8.py"
@@ -48,14 +48,14 @@ if os.path.exists(target_filename):
         script_code = f.read()
         
     st.subheader("📝 Script Source Code View")
-    st.caption(f"Reading directly from local workspace workspace file: `{target_filename}`")
+    st.caption(f"Reading directly from local workspace file: `{target_filename}`")
     
-    # Check if the code file is Java code (stored in program3/program5) or Python
+    # Automatically check if the code file is Java code or Python
     is_java = "public class" in script_code or "import java." in script_code
     st.code(script_code, language="java" if is_java else "python")
     
     # 2. Execution Engine (For executable Python scripts)
-    if not is_java and target_filename not in ["program4.py"]: # Exclude PySpark if it requires standalone cluster terminal run setups
+    if not is_java: 
         st.subheader("⚡ Live Script Execution Console")
         st.caption("Click the trigger below to run the machine learning pipelines within this folder path location context.")
         
@@ -70,32 +70,29 @@ if os.path.exists(target_filename):
                 try:
                     # Redirect core terminal output streams directly into our UI layout screen
                     with contextlib.redirect_stdout(stdout_buffer), contextlib.redirect_stderr(stdout_buffer):
-                        # Create an isolated local scope execution map dictionary context 
-                        exec_globals = {}
-                        exec_locals = {}
-                        exec(script_code, exec_globals, exec_locals)
+                        # Unified shared execution scope dictionary forces variables and 
+                        # module imports (like 're') to stay bound inside pandas functions.
+                        exec_scope = {"__name__": "__main__"}
+                        exec(script_code, exec_scope, exec_scope)
                     
                     st.success("✨ Script engine pipeline completed execution successfully!")
                     
                     # Output printed logs onto console block text window
                     output_text = stdout_buffer.getvalue()
                     if output_text:
-                        st.text_area("Console Terminal Metrics Logs:", value=output_text, height=250)
+                        st.text_area("Console Terminal Metrics Logs:", value=output_text, height=300)
                     else:
                         st.info("Script completed successfully but returned no metrics prints text.")
                     
                     # Dynamically look for any active figures drawn by matplotlib inside the script execution runtime context
                     fig = plt.gcf()
                     if fig and fig.get_axes():
-                        st.subheader("📊 Output Distribution Plot Canvas")
+                        st.subheader("📊 Output Visualizations Canvas")
                         st.pyplot(fig)
                         
                 except Exception as script_err:
                     st.error("❌ A runtime processing exception failure occurred inside the targeted script layout file.")
                     st.exception(script_err)
-                    
-    elif target_filename == "program4.py":
-        st.info("ℹ️ PySpark Big Data architecture scripts require execution initialization commands inside a cluster ecosystem shell terminal context framework.")
     else:
         st.info("ℹ️ Distributed MapReduce Java applications must be compiled and deployed using target Hadoop cluster infrastructure commands.")
 else:
