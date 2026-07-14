@@ -1,0 +1,11 @@
+Duration,StartStation,EndStation,BikeID,Gender,BirthYear,UserType
+500,A,B,101,Male,1989,Registered
+650,C,D,102,Female,1992,Casual
+800,A,C,103,Male,1985,Registered
+700,B,D,104,Female,1995,Casual
+400,C,A,105,Male,1990,Registered
+900,D,A,106,Female,1988,Casual
+450,A,B,107,Male,1993,Registered
+720,B,C,108,Female,1991,Casual
+600,C,D,109,Male,1987,Registered
+850,D,B,110,Female,1994,Casual

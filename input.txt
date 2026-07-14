@@ -1,0 +1,3 @@
+Hadoop is big data
+Hadoop is fast
+Big data is useful
