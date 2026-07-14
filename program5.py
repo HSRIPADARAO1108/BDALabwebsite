@@ -1,4 +1,4 @@
-!pip install pyspark
+
 import pandas as pd
 
 data = {
